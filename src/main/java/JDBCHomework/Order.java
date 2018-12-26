@@ -14,6 +14,13 @@ public class Order {
         this.time = System.currentTimeMillis();
     }
 
+    public Order(int id, Product product, Client client) {
+        this.id = id;
+        this.time = System.currentTimeMillis();
+        this.productId = product.getId();
+        this.clientId = client.getId();
+    }
+
     public Order() {
     }
 }

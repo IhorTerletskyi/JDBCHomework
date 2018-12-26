@@ -108,6 +108,48 @@ public abstract class DAO<K, T> {
         }
     }
 
+    public List<T> getFullOrder(Class<T> cls) {
+        List<T> res = new ArrayList<>();
+        System.out.println();
+
+        try {
+            try (Statement st = conn.createStatement()) {
+                try (ResultSet rs = st.executeQuery("SELECT orders.*,products.name,products.weight,products.price,clients.clientName,clients.phone FROM orders INNER JOIN products ON orders.productId = products.Id INNER JOIN clients ON orders.clientId = clients.Id")) {
+                    ResultSetMetaData md = rs.getMetaData();
+
+                    for (int i = 1; i <= md.getColumnCount(); i++)
+                        System.out.printf("%20s", md.getColumnName(i));
+                    System.out.println();
+
+                    while (rs.next()) {
+                        T newObject = (T) cls.newInstance();
+
+                        for (int i = 1; i <= md.getColumnCount(); i++) {
+                            String columnName = md.getColumnName(i);
+                            System.out.printf("%20s", rs.getObject(columnName));
+
+                            try {
+                                Field field = cls.getDeclaredField(columnName);
+                                field.setAccessible(true);
+
+                                field.set(newObject, rs.getObject(columnName));
+                            } catch (NoSuchFieldException e) {
+                            }
+//                            System.out.printf("%20s", rs.getObject(columnName));
+                        }
+
+                        res.add(newObject);
+                        System.out.println();
+                    }
+                }
+            }
+
+            return res;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
     public List<T> getByParametr(Class<T> cls, String parametrName, String parametrValue) {
         List<T> res = new ArrayList<>();
         System.out.println();

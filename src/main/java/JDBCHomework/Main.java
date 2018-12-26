@@ -24,6 +24,11 @@ public class Main {
         Product productTwo = new Product(2, "Figa", 2, 190);
         Product productThree = new Product(3, "Cucumber", 1, 40);
 
+        Order orderOne = new Order(1,productOne,clientOne);
+        Order orderTwo = new Order(2,productOne,clientTwo);
+        Order orderThree = new Order(3,productThree,clientTwo);
+        Order orderFour = new Order(4,productTwo,clientTwo);
+
         try (Connection conn = DriverManager.getConnection(DB_CONNECTION, DB_USER, DB_PASSWORD)) {
 
             try (Statement st = conn.createStatement()){
@@ -31,13 +36,13 @@ public class Main {
                 st.execute("CREATE TABLE " + "flats" +" (id INT NOT NULL PRIMARY KEY, district VARCHAR(20) NOT NULL, address VARCHAR(20), square INT, rooms INT, price INT)");
 
                 st.execute("DROP TABLE IF EXISTS " + "clients");
-                st.execute("CREATE TABLE " + "clients" +" (id INT NOT NULL PRIMARY KEY, name VARCHAR(10), age INT, phone INT)");
+                st.execute("CREATE TABLE " + "clients" +" (id INT NOT NULL PRIMARY KEY, clientName VARCHAR(10), age INT, phone INT)");
 
                 st.execute("DROP TABLE IF EXISTS " + "products");
                 st.execute("CREATE TABLE " + "products" +" (id INT NOT NULL PRIMARY KEY, name VARCHAR(10), weight INT, price INT)");
 
                 st.execute("DROP TABLE IF EXISTS " + "orders");
-                st.execute("CREATE TABLE " + "orders" +" (id INT NOT NULL PRIMARY KEY, date LONG, productId INT, clientId INT)");
+                st.execute("CREATE TABLE " + "orders" +" (id INT NOT NULL PRIMARY KEY, time BIGINT, productId INT, clientId INT)");
             }
 
             FlatDAO flatDAO = new FlatDAO(conn, "flats");
@@ -55,6 +60,21 @@ public class Main {
             flatOne.setPrice(500000);
             flatDAO.update(flatOne);
             flatDAO.getAll(Flat.class);
+
+            clientDAO.add(clientOne);
+            clientDAO.add(clientTwo);
+
+            productDAO.add(productOne);
+            productDAO.add(productTwo);
+            productDAO.add(productThree);
+
+            orderDAO.add(orderOne);
+            orderDAO.add(orderTwo);
+            orderDAO.add(orderThree);
+            orderDAO.add(orderFour);
+
+            orderDAO.getAll(Order.class);
+            orderDAO.getFullOrder(Order.class);
 
         } catch (SQLException e) {
             e.printStackTrace();
